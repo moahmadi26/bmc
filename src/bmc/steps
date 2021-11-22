@@ -1,0 +1,11 @@
+1) create the model in python --
+2) using bmc to generate a set of counterexamples --
+3) use this counterexamples to build a graph --
+4) find the transition rates for the graph to convert it to a ctmc (Better to do this in python) (needs work)
+5) in PRISM read the ctmc from step 4 --
+6) find the probabilty of the ctmc model --
+
+
+0.0023
+threshold = 0.0001
+propbablity_bound = 0.001
