@@ -70,7 +70,7 @@ public class bmc_6
 			int exit_value;
 			File graph_file;
 			String path_length_string, script_location, model_location, command;
-			String graph_location = "/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/graph.g";
+			String graph_location = "./graph.g";
 			Graph graph;
 
 
@@ -78,9 +78,8 @@ public class bmc_6
 
 				long time_1 = System.currentTimeMillis();
 
-				System.out.println("path_length: " + String.valueOf(path_length));
-				script_location = "/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/bmc.py";
-				model_location = "/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/examples/six_rn.py";
+				script_location = "./bmc_z3/bmc_6.py";
+				model_location = "./bmc_z3/examples/six_rn.py";
 				path_length_string = String.valueOf(path_length);
 				command = "python3 " + script_location + " " + model_location + " " + path_length_string + " " + "1";
 				Process process = Runtime.getRuntime().exec(command);
@@ -90,7 +89,6 @@ public class bmc_6
 				BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
 				BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-				System.out.print("number of paths: ");
 				String s = null;
 				while ((s = stdInput.readLine()) != null) {
 				    System.out.println(s);

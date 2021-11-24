@@ -18,12 +18,7 @@ def exclude_path(path):
 	return Not(And(assignments))
 
 def sort_first(val): 
-	if val[0]=='sc':
-		return 0
-	elif val[0]=='ph':
-		return 1
-	else:
-		return 2
+	return val[0]
 
 def add_edges_from_path(graph, path): 
 	index = -1
@@ -68,7 +63,7 @@ def add_edges_from_path(graph, path):
 		to_node = Node.Node(to_node_name)
 		temp = to_node_name[1:to_node_name.find(',')]
 
-		if (temp=='511'):
+		if (temp=='5'):
 			to_node.make_terminal()
 		edge = Edge.Edge(from_node, to_node)
 		graph.add_edges([edge])
@@ -147,10 +142,10 @@ if len(sys.argv)>4:
 	constraints_file = sys.argv[4]
 else:
 	constraints_file = '/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/constraints.smt'
-	#constraints_file = 'constraints.smt'
+	constraints_file = 'constraints.smt'
 
 graph_file = '/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/graph.g'
-#graph_file = 'graph.g'
+graph_file = 'graph.g'
 
 bound = int(sys.argv[2])
 solver = Solver()
@@ -192,7 +187,7 @@ if (sys.argv[3]=='1') and (bound!=0):
 		flag = True
 	solver.pop()
 	print('bound: ' + str(bound))
-	print(count)
+	print('# of paths: ' + str(count))
 	# if flag or bound>25:
 	# 	add_loops_to_graph(model, graph, 3)
 	smt2 = solver.sexpr()

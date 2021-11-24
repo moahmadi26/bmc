@@ -48,14 +48,52 @@ import parser.ast.DeclarationInt;
 
 
 
-public class bmc_tandem
+public class prob_calculator
 {
 	public static void main(String[] args) throws IOException
 	{
-		System.out.println("\nStarting...");
+		System.out.println("\nPRISM Model: " + args[0]);
+		System.out.println("BMC Model File: " + args[1]);
+		System.out.println("Probability Bound = " + args[3]);
 		System.out.println("#####################################################");
 		long timeStart = System.currentTimeMillis();
-		new bmc_tandem().run(args);
+		
+		double current_prob = 0; 
+		double prob_bound = Double.parseDouble(args[3]);
+		int path_length = 0; 
+		int exit_value; 
+
+		File graph_file; 
+		String path_length_string, script_location, model_location, command;
+		String graph_location = "./bmc_z3/graph.g";
+		Graph graph; 
+
+		while (current_prob < prob_bound) {
+			
+			script_location = "./bmc_z3/bmc.py";
+			model_location = "./bmc_z3/examples/six_rn.py";
+			path_length_string = String.valueOf(path_length);
+			command = "python3 " + script_location + " " + model_location + " " + path_length_string + " " + "1";
+			Process process = Runtime.getRuntime().exec(command);
+				
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			String s = null;
+			while ((s = stdInput.readLine()) != null) {
+				System.out.println(s);
+			}
+			// Read any errors from the attempted command
+			while ((s = stdError.readLine()) != null) {
+			    System.out.println(s);
+			}
+			System.out.println("================================================");
+
+			//exit_value = process.waitFor(); 
+			graph_file = new File(graph_location);
+		}
+
+
+
 		long timeFinish = System.currentTimeMillis();
         System.out.println(" \nOperation took " + (timeFinish - timeStart) / 1000.0 + " seconds.");
 	}
@@ -64,25 +102,13 @@ public class bmc_tandem
 	{
 		try {
 			
-			
-			//tandem model constants/rates
-			int c = 511;
-			double lambda = 4 * c;
-			double mu1a = 0.1 * 2; 
-			double mu1b = 0.9 * 2;
-			double mu2 = 2; 
-			double kappa = 4;
-
-
-
-
 			double current_prob=0;
 			double prob_bound=Double.parseDouble(args[0]);
 			int path_length = 0;
 			int exit_value;
 			File graph_file;
 			String path_length_string, script_location, model_location, command;
-			String graph_location = "./graph.g";
+			String graph_location = "/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/graph.g";
 			Graph graph;
 
 
@@ -90,8 +116,9 @@ public class bmc_tandem
 
 				long time_1 = System.currentTimeMillis();
 
-				script_location = "./bmc_z3/bmc_tandem.py";
-				model_location = "./bmc_z3/examples/tandem.py";
+				System.out.println("path_length: " + String.valueOf(path_length));
+				script_location = "/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/bmc.py";
+				model_location = "/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/examples/six_rn.py";
 				path_length_string = String.valueOf(path_length);
 				command = "python3 " + script_location + " " + model_location + " " + path_length_string + " " + "1";
 				Process process = Runtime.getRuntime().exec(command);
@@ -101,6 +128,7 @@ public class bmc_tandem
 				BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
 				BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+				System.out.print("number of paths: ");
 				String s = null;
 				while ((s = stdInput.readLine()) != null) {
 				    System.out.println(s);
@@ -144,59 +172,77 @@ public class bmc_tandem
 					String src_keep = src;
 					String dst_keep = dst;
 					Double weight; 
-					int sc_o,sc_n;
-					int ph_o,ph_n;
-					int sm_o,sm_n;
-					
+					int s1_o,s1_n;
+					int s2_o,s2_n;
+					int s3_o,s3_n;
+					int s4_o,s4_n;
+					int s5_o,s5_n;
+					int s6_o,s6_n;
 
-					sc_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
+					s1_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
 					src = src.substring(src.indexOf(",")+1, src.length());
-					ph_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
+					s2_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
 					src = src.substring(src.indexOf(",")+1, src.length());
-					sm_o = Integer.parseInt(src);
+					s3_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
+					src = src.substring(src.indexOf(",")+1, src.length());
+					s4_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
+					src = src.substring(src.indexOf(",")+1, src.length());
+					s5_o = Integer.parseInt(src.substring(0,src.indexOf(",")));
+					src = src.substring(src.indexOf(",")+1, src.length());
+					s6_o = Integer.parseInt(src);
 
-					sc_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
+					s1_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
 					dst = dst.substring(dst.indexOf(",")+1, dst.length());
-					ph_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
+					s2_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
 					dst = dst.substring(dst.indexOf(",")+1, dst.length());
-					sm_n = Integer.parseInt(dst);
+					s3_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
+					dst = dst.substring(dst.indexOf(",")+1, dst.length());
+					s4_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
+					dst = dst.substring(dst.indexOf(",")+1, dst.length());
+					s5_n = Integer.parseInt(dst.substring(0,dst.indexOf(",")));
+					dst = dst.substring(dst.indexOf(",")+1, dst.length());
+					s6_n = Integer.parseInt(dst);
 					
 					
-					//transition1
-					if ((sc_o<c) && (sc_n-sc_o==1) && (ph_n-ph_o==0) && (sm_n-sm_o==0)){
+					//reaction1
+					if ((s1_n-s1_o==-1) && (s2_n-s2_o==-1) && (s3_n-s3_o==1)
+						&& (s4_n-s4_o==0)&& (s5_n-s5_o==0)&& (s6_n-s6_o==0)){
 
-						weight = lambda;
+						weight = 1.0 * s1_o * s2_o;
 					}
-					//transition2
-					else if ((sc_o>0) && (ph_o==1) && (sm_o<c) && (sc_n-sc_o==-1) 
-						&& (ph_n-ph_o==0) && (sm_n-sm_o==1)){
+					//reaction2
+					else if ((s1_n-s1_o==1) && (s2_n-s2_o==1) && (s3_n-s3_o==-1)
+						&& (s4_n-s4_o==0)&& (s5_n-s5_o==0)&& (s6_n-s6_o==0)){
 
-						weight = mu1b;
+						weight = 1.0 * s3_o;
 					}
-					//transition3
-					else if ((sc_o>0) && (ph_o==1) && (sc_n-sc_o==0) 
-						&& (ph_n-ph_o==1) && (sm_n-sm_o==0)){
+					//reaction3
+					else if ((s1_n-s1_o==1) && (s2_n-s2_o==0) && (s3_n-s3_o==-1)
+						&& (s4_n-s4_o==0)&& (s5_n-s5_o==1)&& (s6_n-s6_o==0)){
 
-						weight = mu1a;
-					}
-					//transition4
-					else if ((sc_o>0) && (ph_o==2) && (sm_o<c) && (sc_n-sc_o==-1) 
-						&& (ph_n-ph_o==-1) && (sm_n-sm_o==1)){
+						weight = 0.1 * s3_o;
+					}//reaction4
+					else if ((s1_n-s1_o==0) && (s2_n-s2_o==0) && (s3_n-s3_o==0)
+						&& (s4_n-s4_o==-1)&& (s5_n-s5_o==-1)&& (s6_n-s6_o==1)){
 
-						weight = mu2;
-					}
-					//transition5
-					else if ((sm_o>0) && (sc_n-sc_o==0) 
-						&& (ph_n-ph_o==0) && (sm_n-sm_o==-1)){
+						weight = 1.0 * s4_o * s5_o;
+					}//reaction5
+					else if ((s1_n-s1_o==0) && (s2_n-s2_o==0) && (s3_n-s3_o==0)
+						&& (s4_n-s4_o==1)&& (s5_n-s5_o==1)&& (s6_n-s6_o==-1)){
 
-						weight = kappa;
+						weight = 1.0 * s6_o;
+					}//reaction6
+					else if ((s1_n-s1_o==0) && (s2_n-s2_o==1) && (s3_n-s3_o==0)
+						&& (s4_n-s4_o==1)&& (s5_n-s5_o==0)&& (s6_n-s6_o==-1)){
+
+						weight = 0.1 * s6_o;
 					}
 					else {
 						weight = 1.0;
 						System.out.println("error!");
 					}
 
-					if (sc_n == c) {
+					if (s5_n == 40) {
 						graph.addEdge(src_keep, "target", weight);
 					}
 					else {
@@ -214,28 +260,22 @@ public class bmc_tandem
 				while(it.hasNext()){
 					Node node = graph.getNode(it.next());
 					Set<String> neighbours_set = node.getAdjacencyList();
-					if (neighbours_set.size()>=1){
+					if ((neighbours_set.size()>=1) && (neighbours_set.size()<6)){
 						String present_node = neighbours_set.iterator().next();
 						String node_label = node.getLabel();
 						
-						int sc = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+						int s1 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
 						node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
-						int ph = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+						int s2 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
 						node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
-						int sm = Integer.parseInt(node_label);
-						
-						double rate = 0.0;
-						if (sc<c)
-							rate = rate + lambda;
-						if (sc>0 && ph==1 && sm<c)
-							rate = rate + mu1b;
-						if (sc>0 && ph==1)
-							rate = rate + mu1a;
-						if (sc>0 && ph==2 && sm<c)
-							rate = rate + mu2; 
-						if (sm>0)
-							rate = rate + kappa;
-
+						int s3 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+						node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
+						int s4 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+						node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
+						int s5 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+						node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
+						int s6 = Integer.parseInt(node_label);
+	
 						double current_rate = 0.0;
 						LinkedList<Edge> edges = node.getEdges(); 
 						Iterator<Edge> edge_it = edges.iterator();
@@ -244,6 +284,7 @@ public class bmc_tandem
 							current_rate += edge_it.next().getWeight();
 						}
 						
+						double rate = (1.0 * s1 * s2) + (1.0 * s3) + (0.1 * s3) + (1.0 * s4 * s5) + (1.0 * s6) + (0.1 * s6); 
 						rate = rate - current_rate;
 
 						graph.addEdge(node.getLabel(), "sink", rate);
@@ -264,7 +305,7 @@ public class bmc_tandem
 
 
 				prism.exportTransToFile(true, Prism.EXPORT_PLAIN, new File("export.dot"));
-				double result = (Double) prism.modelCheck("P=? [true U<=2 x=-1]").getResult();
+				double result = (Double) prism.modelCheck("P=? [true U<=100 x=-1]").getResult();
 				System.out.println("probablity= " + String.valueOf(result));
 				current_prob = result;
 				
@@ -314,18 +355,23 @@ public class bmc_tandem
 				//System.out.println(node_label);
 				String node_label_keep = node_label;
 				if ((node_label != "sink") && (node_label != "target")) {
-					
-					int sc = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+					int s1 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
 					node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
-					int ph = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+					int s2 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
 					node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
-					int sm = Integer.parseInt(node_label);
+					int s3 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+					node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
+					int s4 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+					node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
+					int s5 = Integer.parseInt(node_label.substring(0,node_label.indexOf(",")));
+					node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
+					int s6 = Integer.parseInt(node_label);
 					
-					if (sc == 511) 
+					if (s5 == 40) 
 					{
 						nodesMap.put(node_label_keep, -1);
 					}
-					if ((sc == 0) && (ph == 1) && (sm == 0)) {
+					if ((s1 == 1) && (s2 == 50) && (s3 == 0) && (s4 == 1) && (s5 == 50) && (s6 == 0)) {
 						nodesMap.put(node_label_keep, 0);
 					}
 					else {

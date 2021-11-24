@@ -7,7 +7,7 @@ KSP_JAVA_FILES_BMC := $(wildcard src/bmc/*.java)
 
 
 # Need to link to a PRISM distribution
-PRISM_DIR = ../prism
+PRISM_DIR = ../prism-4.7-src
 
 # For compilation, just need access to classes/jars in the PRISM distribution
 # We look in both the top-level and the prism sub-directory
@@ -18,7 +18,7 @@ CLASSPATH = $(PRISM_CLASSPATH):classes
 
 PRISM_LIB_PATH = $(PRISM_DIR)/prism/lib
 
-PRISM_JAVA=`/usr/libexec/java_home`/bin/java
+PRISM_JAVA=/usr/lib/jvm/java-17-openjdk-amd64/bin/java
 
 
 # This Makefile just builds all java files in src and puts the class files in classes
@@ -38,8 +38,8 @@ bmc:
 
 .PHONY: run
 run:
-	export DYLD_LIBRARY_PATH=$(PRISM_LIB_PATH);\
-	$(PRISM_JAVA) -Xmx8g -Djava.library.path=$(PRISM_LIB_PATH) -classpath $(CLASSPATH) bmc_tandem $(prob_bound)
+	export LD_LIBRARY_PATH=$(PRISM_LIB_PATH);\
+	java -Xmx8g -Djava.library.path=$(PRISM_LIB_PATH) -classpath $(CLASSPATH) bmc_yeast $(prob_bound)
 
 
 
@@ -48,4 +48,5 @@ run:
 clean:
 	@rm -rf classes
 	@rm -rf src/KSP/classes 
+	@rm constraints.smt graph.g export.dot
 celan: clean

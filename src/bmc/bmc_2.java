@@ -48,14 +48,14 @@ import parser.ast.DeclarationInt;
 
 
 
-public class bmc2
+public class bmc_2
 {
 	public static void main(String[] args) throws IOException
 	{
 		System.out.println("\nStarting...");
 		System.out.println("#####################################################");
 		long timeStart = System.currentTimeMillis();
-		new bmc2().run(args);
+		new bmc_2().run(args);
 		long timeFinish = System.currentTimeMillis();
         System.out.println(" \nOperation took " + (timeFinish - timeStart) / 1000.0 + " seconds.");
 	}
@@ -65,116 +65,116 @@ public class bmc2
 		try {
 			
 			double current_prob=0;
+			double prob_bound=Double.parseDouble(args[0]);
 			int path_length = 0;
+			int exit_value;
+			File graph_file;
+			String path_length_string, script_location, model_location, command;
+			String graph_location = "./graph.g";
+			Graph graph;
 
-			File cex_file;
 
-			while (current_prob < Double.parseDouble(args[0])) {
+			while (current_prob < prob_bound) {
 
-				int flag = 0;
+				long time_1 = System.currentTimeMillis();
+
+				script_location = "./bmc_z3/bmc_2.py";
+				model_location = "./bmc_z3/examples/two_rn.py";
+				path_length_string = String.valueOf(path_length);
+				command = "python3 " + script_location + " " + model_location + " " + path_length_string + " " + "1";
+				Process process = Runtime.getRuntime().exec(command);
 				
-				while (flag == 0) {
-					System.out.println("path_length: " +String.valueOf(path_length));
-					try {
-						String command = "python3 /Users/mo/usf/projects/probmc/bmc_2rn/ProbMC/SMT_BMC/src/main.py srn-2s " + String.valueOf(path_length);
-						Process process = Runtime.getRuntime().exec(command);
-						int exit_value = process.waitFor();
-						System.out.println("done with python");
-						cex_file = new File("./srn-2s.output");
-						flag = 1;
-					} catch (FileNotFoundException e) {
-						path_length = path_length + 1;
-						System.out.println("==========");
-					}
-				}	
-				
-				cex_file = new File("./srn-2s.output");
-				Scanner cex_reader = new Scanner(cex_file);
 
-				while(!(cex_reader.nextLine().startsWith("#"))) {}
-				while(!(cex_reader.nextLine().startsWith("#"))) {}
 
-				Graph graph = new Graph();
-				HashMap state_index = new HashMap<Integer, String>();
+				BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-				String temp_line = cex_reader.nextLine();
-				int counter = 0;
-				while (!(temp_line.startsWith("#"))){ 
-					temp_line = temp_line.substring(1,temp_line.length()-1);
-					state_index.put(counter, temp_line);
-					graph.addNode(temp_line);
-					temp_line = cex_reader.nextLine();
-					counter = counter + 1;
+				BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+				String s = null;
+				while ((s = stdInput.readLine()) != null) {
+				    System.out.println(s);
 				}
 
-				if (counter != 0){
-					temp_line = cex_reader.nextLine();
-					temp_line = temp_line.substring(1,temp_line.length()-1);
+				// Read any errors from the attempted command
+				while ((s = stdError.readLine()) != null) {
+				    System.out.println(s);
+				}
 
 
-					state_index.put(counter, temp_line);
-					graph.addNode(temp_line);
-					String target_state = temp_line;
 
-					while(!(cex_reader.nextLine().startsWith("#"))) {}
+				exit_value = process.waitFor(); 
+				graph_file = new File(graph_location);
+				
+				Scanner graph_reader = new Scanner(graph_file);
 
-					while(cex_reader.hasNextLine()) {
-						temp_line = cex_reader.nextLine();
-						String src, dst;
-						src = temp_line.substring(0,temp_line.indexOf(" "));
-						dst = temp_line.substring(temp_line.indexOf(" ")+1,temp_line.length());
-						int src_int = Integer.parseInt(src);
-						int dst_int = Integer.parseInt(dst);
+				while(!(graph_reader.nextLine().startsWith("#"))) {}
+				graph = new Graph();
+				String node_line = graph_reader.nextLine();
+				while(!(node_line.startsWith("#"))) {
+					graph.addNode(node_line.substring(1, node_line.length()-1));
+					node_line = graph_reader.nextLine();
+				}
+				
+				// String target_state = graph_reader.nextLine();
+				// target_state = target_state.substring(1,target_state.length()-1);
+				
+				while(!(graph_reader.nextLine().startsWith("#"))) {}
 
-						int src_value = Integer.parseInt(state_index.get(src_int).toString());
-						int dst_value = Integer.parseInt(state_index.get(dst_int).toString());
-						Double weight; 
-						if (dst_value > src_value)
-							weight = 1.0;
-						else 
-							weight = 0.025 * (double) src_value;
-						graph.addEdge(state_index.get(src_int).toString(),state_index.get(dst_int).toString(), weight);
 
-					}
+				while(graph_reader.hasNextLine()) { 
+					String edge_line = graph_reader.nextLine();
+					String src, dst; 
+					src = edge_line.substring(1, edge_line.indexOf(" ")-1);
+					dst = edge_line.substring(edge_line.indexOf(" ")+2, edge_line.length()-1);
+					Double weight; 
+					if (Integer.parseInt(src) < Integer.parseInt(dst))
+						weight = 1.0;
+					else
+						weight = 0.025 * (double) Integer.parseInt(src);
+					graph.addEdge(src, dst, weight);
 
-					Set entrySet = state_index.entrySet();
-					Iterator it = entrySet.iterator();
-					graph.addNode("sink");
-					while(it.hasNext()){
-						Map.Entry me = (Map.Entry) it.next();
-						Node node = graph.getNode(me.getValue().toString());
-						Set<String> neighborsSet = node.getAdjacencyList();
-						if (node.getAdjacencyList().size()==1) {
-							String presentNode = neighborsSet.iterator().next();
-						double rate;
-						if (Integer.parseInt(presentNode) < Integer.parseInt(me.getValue().toString()))
+				}
+
+
+
+				graph.addNode("-1");
+				Set nodes_set = graph.getNodeLabels();
+				Iterator<String> it = nodes_set.iterator();
+				while(it.hasNext()){
+					Node node = graph.getNode(it.next());
+					Set<String> neighbours_set = node.getAdjacencyList();
+					if (neighbours_set.size()==1){
+						String present_node = neighbours_set.iterator().next();
+						double rate; 
+						if (Integer.parseInt(present_node) < Integer.parseInt(node.getLabel()))
 							rate = 1.0;
 						else
-							rate = (double) (Integer.parseInt(me.getValue().toString())) * 0.025;
-						graph.addEdge(me.getValue().toString(),"sink",rate);
-						
-						}
-					}
-
-					// Create a log for PRISM output (hidden or stdout)
-					PrismLog mainLog = new PrismDevNullLog();
-
-					// Initialise PRISM engine 
-					Prism prism = new Prism(mainLog);
-					prism.setEngine(Prism.EXPLICIT);
-					prism.initialise();
-
-					ctmcModel modelGen = new ctmcModel(graph);
-					prism.loadModelGenerator(modelGen);
-
-
-					prism.exportTransToFile(true, Prism.EXPORT_PLAIN, new File("export.dot"));
-					double result = (Double) prism.modelCheck("P=? [true U<=100 x="+String.valueOf(modelGen.getTargetState()) +"]").getResult();
-					System.out.println("probablity= " + String.valueOf(result));
-					System.out.println("==========");
-					current_prob = result;
+							rate = (double) (Integer.parseInt(node.getLabel()) * 0.025);
+						graph.addEdge(node.getLabel(), "-1", rate);
+					}	
 				}
+
+				
+				// Create a log for PRISM output (hidden or stdout)
+				PrismLog mainLog = new PrismDevNullLog();
+
+				// Initialise PRISM engine 
+				Prism prism = new Prism(mainLog);
+				prism.setEngine(Prism.EXPLICIT);
+				prism.initialise();
+
+				ctmcModel modelGen = new ctmcModel(graph);
+				prism.loadModelGenerator(modelGen);
+
+
+				prism.exportTransToFile(true, Prism.EXPORT_PLAIN, new File("export.dot"));
+				double result = (Double) prism.modelCheck("P=? [true U<=100 x=65]").getResult();
+				System.out.println("probablity= " + String.valueOf(result));
+				current_prob = result;
+				
 				path_length = path_length+1;
+				long time_2 = System.currentTimeMillis();
+				System.out.println(" \nthis bound took " + (time_2 - time_1) / 1000.0 + " seconds.");
+				System.out.println("==========");
 
 			}
 
@@ -192,14 +192,7 @@ public class bmc2
         }  
 
 	}
-			
-			
-			
-
-			
-
-			
-
+				
 	
 	class ctmcModel implements ModelGenerator 
 	{
@@ -210,31 +203,17 @@ public class bmc2
 		private Node node;
 		private int target_state;
 
-		public int returnTarget() {
-			return nodesMap.get("target");
-		}
 
 		public ctmcModel (Graph graph) {
 			this.graph = graph;
-			int count = 0; 
 			Set<String> nodeLabels = graph.getNodeLabels(); 
 			Iterator<String> iter = nodeLabels.iterator(); 
 			while (iter.hasNext()) {
-				String temp; 
-				temp = iter.next();
-				nodesMap.put(temp, count);
-				if (temp.equals("65")){
-					//System.out.println(count);
-					target_state=count;
-				}
-				count++;
+				String temp = iter.next();
+				nodesMap.put(temp, Integer.parseInt(temp));
 			}
 		}
-	
-		public int getTargetState()
-		{
-			return target_state;
-		}
+
 		// Methods for ModelInfo
 
 		// Models we are checking are CTMCs
@@ -265,19 +244,7 @@ public class bmc2
 		public State getInitialState() throws PrismException
 		{
 			// //initially we are at initial state
-			// List<Edge> edgeList = graph.getEdgeList(); 
-			// Iterator<Edge> iter = edgeList.iterator(); 
-			// Set<String> toNodes = new HashSet<String>(); 
-			// while (iter.hasNext()) {
-			// 	toNodes.add(iter.next().getToNode());
-			// }
-			// Set<String> origToNodes = new HashSet<String>();
-			// origToNodes.addAll(graph.getNodeLabels()); 
-			// origToNodes.removeAll(toNodes);
-			// Iterator<String> iter2 = origToNodes.iterator();
-			// node = graph.getNode(iter2.next());
-			int nodeInt = nodesMap.get("40");
-			return new State(1).setValue(0, nodeInt);
+			return new State(1).setValue(0, 40);
 		}
 	
 		// after a call to this many of the functions should be available in the state
@@ -368,8 +335,6 @@ public class bmc2
 			}
 			return varList;
 		}
-
-	
 
 
 	}
