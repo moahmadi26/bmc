@@ -37,17 +37,18 @@ def get_encoding(i):
     s6_nxt = Int('s6.{0}'.format(i))
     s7 = Int('s7.{0}'.format(i-1))
     s7_nxt = Int('s7.{0}'.format(i))
-    transition_1 = And(s1_nxt==(s1+1), s2_nxt==s2, s3_nxt==s3, s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
-    transition_2 = And(s1_nxt==(s1-1), s2_nxt==s2, s3_nxt==s3, s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
-    transition_3 = And(s1_nxt==(s1-1), s2_nxt==s2, s3_nxt==(s3+1), s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
-    transition_4 = And(s1_nxt==(s1+1), s2_nxt==s2, s3_nxt==(s3-1), s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
+    #transition_1 = And(s1_nxt==(s1+1), s2_nxt==s2, s3_nxt==s3, s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
+    #transition_2 = And(s1_nxt==(s1-1), s2_nxt==s2, s3_nxt==s3, s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
+    #transition_3 = And(s1_nxt==(s1-1), s2_nxt==s2, s3_nxt==(s3+1), s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
+    #transition_4 = And(s1_nxt==(s1+1), s2_nxt==s2, s3_nxt==(s3-1), s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
     transition_5 = And(s1_nxt==s1, s2_nxt==s2, s3_nxt==(s3-1), s4_nxt==(s4-1), s5_nxt==(s5+1), s6_nxt==(s6+1), s7_nxt==s7)
-    transition_6 = And(s1_nxt==s1, s2_nxt==s2, s3_nxt==s3, s4_nxt==s4, s5_nxt==(s5-1), s6_nxt==s6, s7_nxt==(s7+1))
-    transition_7 = And(s1_nxt==s1, s2_nxt==s2, s3_nxt==s3, s4_nxt==(s4+1), s5_nxt==s5, s6_nxt==(s6-1), s7_nxt==(s7-1))
+    #transition_6 = And(s1_nxt==s1, s2_nxt==s2, s3_nxt==s3, s4_nxt==s4, s5_nxt==(s5-1), s6_nxt==s6, s7_nxt==(s7+1))
+    #transition_7 = And(s1_nxt==s1, s2_nxt==s2, s3_nxt==s3, s4_nxt==(s4+1), s5_nxt==s5, s6_nxt==(s6-1), s7_nxt==(s7-1))
     transition_8 = And(s1_nxt==s1, s2_nxt==s2, s3_nxt==(s3+1), s4_nxt==s4, s5_nxt==s5, s6_nxt==s6, s7_nxt==s7)
 
     not_zero = And(s1_nxt>=0,s2_nxt>=0,s3_nxt>=0,s4_nxt>=0,s5_nxt>=0,s6_nxt>=0, s7_nxt>=0)
-    encoding = And(Or(transition_1, transition_2, transition_3, transition_4, transition_5, transition_6, transition_7, transition_8), not_zero)
+    #encoding = And(Or(transition_1, transition_2, transition_3, transition_4, transition_5, transition_6, transition_7, transition_8), not_zero)
+    encoding = And(Or(transition_5, transition_8), not_zero)
     return encoding
 
 def get_property(i):

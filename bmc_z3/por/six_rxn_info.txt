@@ -1,0 +1,124 @@
+All transitions - bound==25: (loopless)
+
+bound19: # of paths= 1
+bound20: # of paths= 19
+bound21: # of paths= 171
+bound22: # of paths= 969
+bound23: # of paths= 4012
+bound24: # of paths= >4662
+bound25: # of paths= ...
+
+Total # of paths: >9834
+probability until bound==23: 2.01E-10
+time = 19m30s
+-----------------------------------
+R5 removed - bound==25: (loopless)
+
+bound19: # of paths= 1
+bound20: # of paths= 19
+bound21: # of paths= 171
+bound22: # of paths= 969
+bound23: # of paths= 4012
+bound24: # of paths= >4691
+bound25: # of paths= ...
+
+Total # of paths: >9863
+probability until bound==23: 2.01E-10
+time = 18m35s
+-----------------------------------
+
+R2 removed - bound==25: (loopless)
+
+bound19: # of paths= 1
+bound20: # of paths= 19
+bound21: # of paths= 0
+bound22: # of paths= 0
+bound23: # of paths= 136
+bound24: # of paths= 680
+bound25: # of paths= 0
+
+Total # of paths: 836 
+probability = 6.77E-13
+time = 1m52s
+-----------------------------------
+
+R2 and R5 removed - Bound==25: (loopless)
+
+bound19: # of paths= 1 
+bound20: # of paths= 19
+bound21: # of paths= 0
+bound22: # of paths= 0
+bound23: # of paths= 136
+bound24: # of paths= 680
+bound25: # of paths= 0
+
+Total # of paths: 836
+probability = 6.77E-13
+time = 1m29s
+
+
+
+==============================================================
+without scaffolding: 
+
+True probability == 0.04
+
+bound = 1-18 : 
+# of paths = 0
+probability = 0
+acc_time =  4.79s
+
+bound = 19:
+# of paths = 1
+probability = 8.04E-29
+acc_time = 7.93s
+
+bound = 20:
+# of paths = 19
+probability = 6.66E-13
+acc_time = 12.53s
+
+bound = 21:
+# of paths = 171
+probability = 1.90E-10
+acc_time = 23.36s
+--------------------------------------------------------------
+
+with scaffolding: 
+
+bound = 1-18 : 
+# of paths = 0
+# of scaff paths = 0 
+probability = 0
+acc_time =  4.79s
+
+bound = 19:
+# of paths = 1
+# of scaff paths = 85
+probability = 2.23E-10
+acc_time = 10.24s
+
+bound = 20:
+# of paths = 19
+# of scaff paths = 1691 
+probability = 0.0018
+acc_time = 52.08s
+
+bound = 21:
+# of paths = 171
+# of scaff paths = 16416
+probability = 0.028
+acc_time = 425.05s
+
+
+------------------------------------------
+Develop this idea: 
+
+a - b - c
+a - b - d
+a - b - e
+
+Not(a - b)
+instead of : And((Not a - b - c), (Not a - b - d), (Not a - b - e))
+
+Write the contribution section of the paper

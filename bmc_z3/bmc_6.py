@@ -9,6 +9,7 @@ from z3 import *
 import importlib
 import os, sys
 from Graph import Graph, Node, Edge
+import timeit
 #########################
 def exclude_path(path): 
 	assignments = []
@@ -27,35 +28,40 @@ def add_edges_from_path(graph, path):
 		if index_temp > index: 
 			index = index_temp
 
-	for i in range(0, index): 
+	node_list = [None] * (index+1)
+
+	for i in path.decls():
+		index_temp = int(i.name()[i.name().rfind('.')+1:])
+		if node_list[index_temp] == None: 
+			node_list[index_temp] = []
+		node_list[index_temp].append([i.name()[1:i.name().find('.')], str(path[i])])
+
+	for n in node_list: 
+		n.sort(key=sort_first)
+
+	#print (node_list)
+	node_list_len = len(node_list)
+	for i in range(node_list_len-1): 
 		from_node_name = '['
-		from_node_list = []
 		to_node_name = '['
-		to_node_list = []
-		for j in path.decls(): 
-			if int(j.name()[j.name().rfind('.')+1:])==i: 
-				from_node_list.append([j.name()[1:j.name().find('.')], str(path[j])])
-			if int(j.name()[j.name().rfind('.')+1:])==i+1: 
-				to_node_list.append([j.name()[1:j.name().find('.')], str(path[j])])
+		
+		
+		from_cell = node_list[i]
+		to_cell = node_list[i+1]
 
-		from_node_list.sort(key=sort_first)
-		to_node_list.sort(key=sort_first)
-
-		flag = False
-		for l in from_node_list: 
-			if flag == False: 
-				from_node_name = from_node_name + str(l[1])
-				flag = True
+		for j, c in enumerate(from_cell):
+			if j == 0: 
+				from_node_name = from_node_name + str(c[1])
 			else: 
-				from_node_name = from_node_name + ',' + str(l[1])
+				from_node_name = from_node_name + ',' + str(c[1])
+		
+		for j, c in enumerate(to_cell):
+			if j == 0:
+				to_node_name = to_node_name + str(c[1])
+			else:
+				to_node_name = to_node_name + ',' + str(c[1])
+
 		from_node_name = from_node_name + ']'
-		flag = False
-		for l in to_node_list: 
-			if flag == False: 
-				to_node_name = to_node_name + str(l[1])
-				flag = True
-			else: 
-				to_node_name = to_node_name + ',' + str(l[1])
 		to_node_name = to_node_name + ']'
 		from_node = Node.Node(from_node_name)
 		to_node = Node.Node(to_node_name)
@@ -65,6 +71,8 @@ def add_edges_from_path(graph, path):
 			to_node.make_terminal()
 		edge = Edge.Edge(from_node, to_node)
 		graph.add_edges([edge])
+
+	
 
 def loop_constraints(bound):
 	constraints = []
@@ -135,10 +143,8 @@ model = importlib.import_module(module_name)
 if len(sys.argv)>4:
 	constraints_file = sys.argv[4]
 else:
-	constraints_file = '/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/constraints.smt'
 	constraints_file = 'constraints.smt'
 
-graph_file = '/Users/mo/usf/projects/probmc/ProbMC/SMT_BMC/src/graph.g'
 graph_file = 'graph.g'
 
 bound = int(sys.argv[2])
@@ -164,22 +170,21 @@ if (sys.argv[3]=='1') and (bound!=0):
 	state_vector = graph.from_file(graph_file)
 	solver.from_file(constraints_file)
 	solver.add(model.get_encoding(bound))
-	#solver.add(loop_constraints(bound))
-	solver.push()
-	solver.add(model.get_property(bound))
+	solver.add(loop_constraints(bound))
 	count = 0
 	flag = False
+	time_acc = 0
+	print('bound: ' + str(bound))
 	while (solver.check(model.get_property(bound))==sat):
 		path=solver.model()
+		time1 = timeit.default_timer()
 		add_edges_from_path(graph, path)
-		solver.pop()
+		time2 = timeit.default_timer()
+		time_acc = time_acc + (time2 - time1)
 		solver.add(exclude_path(path))
-		solver.push()
-		solver.add(model.get_property(bound))
 		count = count+1
 		flag = True
-	solver.pop()
-	print('bound: ' + str(bound))
+	print('time for adding paths: %d' % (time_acc))
 	print('# of paths: ' + str(count))
 	# if flag or bound>25:
 	# 	add_loops_to_graph(model, graph, 3)

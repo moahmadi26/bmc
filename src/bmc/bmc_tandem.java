@@ -66,7 +66,7 @@ public class bmc_tandem
 			
 			
 			//tandem model constants/rates
-			int c = 511;
+			int c = 127;
 			double lambda = 4 * c;
 			double mu1a = 0.1 * 2; 
 			double mu1b = 0.9 * 2;
@@ -90,7 +90,7 @@ public class bmc_tandem
 
 				long time_1 = System.currentTimeMillis();
 
-				script_location = "./bmc_z3/bmc_tandem.py";
+				script_location = "./bmc_z3/bmc_tandem_scaf.py";
 				model_location = "./bmc_z3/examples/tandem.py";
 				path_length_string = String.valueOf(path_length);
 				command = "python3 " + script_location + " " + model_location + " " + path_length_string + " " + "1";
@@ -104,6 +104,7 @@ public class bmc_tandem
 				String s = null;
 				while ((s = stdInput.readLine()) != null) {
 				    System.out.println(s);
+				    break;
 				}
 
 				// Read any errors from the attempted command
@@ -196,7 +197,7 @@ public class bmc_tandem
 						System.out.println("error!");
 					}
 
-					if (sc_n == c) {
+					if ((sc_n == c)) {
 						graph.addEdge(src_keep, "target", weight);
 					}
 					else {
@@ -321,7 +322,7 @@ public class bmc_tandem
 					node_label = node_label.substring(node_label.indexOf(",")+1, node_label.length());
 					int sm = Integer.parseInt(node_label);
 					
-					if (sc == 511) 
+					if ((sc == 127)) 
 					{
 						nodesMap.put(node_label_keep, -1);
 					}

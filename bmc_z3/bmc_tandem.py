@@ -1,4 +1,4 @@
-#script takes two or three inputs: 
+#script takes three or four inputs: 
 #input1: model file
 #input2: bound to check for the model
 #input3: 0 or 1. 1 indicates there is a fourth input containing the encoding of solver for bound-1 on the model 
@@ -68,7 +68,7 @@ def add_edges_from_path(graph, path):
 		to_node = Node.Node(to_node_name)
 		temp = to_node_name[1:to_node_name.find(',')]
 
-		if (temp=='511'):
+		if (temp=='127'):
 			to_node.make_terminal()
 		edge = Edge.Edge(from_node, to_node)
 		graph.add_edges([edge])

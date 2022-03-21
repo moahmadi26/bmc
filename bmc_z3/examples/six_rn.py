@@ -46,9 +46,6 @@ def get_property(i):
     
     s5 = Int('s5.{0}'.format(i))
     property = (s5 == 40)
-    #node = Node.Node('[65]')
-    #node.make_terminal()
-    #return [property, [node]]
     return property
 
 def get_initial_state():
@@ -60,7 +57,7 @@ def get_initial_state():
     s5 = Int('s5.{0}'.format(0))
     s6 = Int('s6.{0}'.format(0))
 
-    state = And(s1 == 1, s4 == 1, s2 == 50, s5 == 50, s3 == 0, s6 == 0, s1>=0, s2>=0, s3>=0, s4>=0, s5>=0, s6>=0)
+    state = And(s1 == 1, s4 == 1, s2 == 50, s5 == 50, s3 == 0, s6 == 0)
     node = Node.Node('[1,50,0,1,50,0]')
     state_vector = '[s1,s2,s3,s4,s5,s6]'
     return [state, [node], state_vector]

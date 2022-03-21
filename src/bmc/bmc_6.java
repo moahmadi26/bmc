@@ -78,8 +78,16 @@ public class bmc_6
 
 				long time_1 = System.currentTimeMillis();
 
-				script_location = "./bmc_z3/bmc_6.py";
+				script_location = "./bmc_z3/src/bmc_6.py";
 				model_location = "./bmc_z3/examples/six_rn.py";
+				
+
+				//remove this
+				//script_location = "./bmc_z3/por/bmc_6.py";
+				//model_location = "./bmc_z3/por/six_rn.py";
+				//
+				
+
 				path_length_string = String.valueOf(path_length);
 				command = "python3 " + script_location + " " + model_location + " " + path_length_string + " " + "1";
 				Process process = Runtime.getRuntime().exec(command);
