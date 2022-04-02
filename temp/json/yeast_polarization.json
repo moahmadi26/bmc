@@ -1,0 +1,5 @@
+{
+	"model" : "yeast_polarization",
+	"starting_bound" : 10,
+	"property" : "P<0.01 [true U<=100 s5=40]"
+}

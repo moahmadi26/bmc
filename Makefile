@@ -39,7 +39,7 @@ bmc:
 .PHONY: run
 run:
 	export LD_LIBRARY_PATH=$(PRISM_LIB_PATH);\
-	java -Xmx8g -Djava.library.path=$(PRISM_LIB_PATH) -classpath $(CLASSPATH) bmc_6 $(prob_bound)
+	java -Xmx8g -Djava.library.path=$(PRISM_LIB_PATH) -classpath $(CLASSPATH) bmc_yeast $(prob_bound)
 
 
 

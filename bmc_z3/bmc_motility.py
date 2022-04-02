@@ -180,6 +180,7 @@ if (sys.argv[3]=='1') and (bound!=0):
 	solver.add(model.get_property(bound))
 	count = 0
 	flag = False
+	print('bound: ' + str(bound))
 	while (solver.check(model.get_property(bound))==sat):
 		path=solver.model()
 		add_edges_from_path(graph, path)
@@ -190,8 +191,9 @@ if (sys.argv[3]=='1') and (bound!=0):
 		count = count+1
 		print(count)
 		flag = True
+		graph.to_file(graph_file, state_vector)
 	solver.pop()
-	print('bound: ' + str(bound))
+	
 	print(count)
 	# if flag or bound>25:
 	# 	add_loops_to_graph(model, graph, 3)

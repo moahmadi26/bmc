@@ -130,7 +130,7 @@ if (sys.argv[3]=='1') and (bound!=0):
 		flag = True
 
 	print('# of paths: ' + str(count))
-	print('# of scaffold paths = %d' % (num_scaffold_paths))
+	print('# of constructed paths = %d' % (num_scaffold_paths))
 
 	smt2 = solver.sexpr()
 	with open(constraints_file, mode='w', encoding='ascii') as f:

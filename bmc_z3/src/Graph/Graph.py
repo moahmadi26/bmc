@@ -40,6 +40,14 @@ class Graph:
 					self.nodes.append(node) 
 				self.edges.append(i)
 
+	def is_empty(self): 
+		if len(self.nodes) == 0: 
+			return True
+		return False
+
+	def nodes_size(self): 
+		return len(self.nodes)
+
 	def to_file(self, filename, state_vector): 
 		with open(filename, mode='w', encoding='ascii') as f: 
 			f.truncate()
@@ -57,6 +65,43 @@ class Graph:
 				f.write(i)
 				f.write('\n')
 			f.write('#')
+
+			for e in self.edges:
+				f.write('\n')
+				node1 = e.get_nodes()[0]
+				node2 = e.get_nodes()[1]
+				f.write(node1.name)
+				f.write(' ')
+				f.write(node2.name)
+			f.close()
+
+	def to_file_(self, filename, state_vector): 
+		with open(filename, mode='w', encoding='ascii') as f: 
+			f.truncate()
+			f.write(state_vector)
+			f.write('\n#')
+			terminal_name = []
+			ordinary_name = []
+			initial_name = []
+			for n in self.nodes: 					
+				if n.is_terminal:
+					terminal_name.append(n.name)
+				elif n.is_initial: 
+					initial_name.append(n.name)
+				else:
+					ordinary_name.append(n.name)
+			for e in initial_name:
+				f.write('\n')
+				f.write(e)
+			f.write('\n#')
+			for e in ordinary_name:
+				f.write('\n')
+				f.write(e)
+			f.write('\n#')
+			for e in terminal_name:
+				f.write('\n')
+				f.write(e)
+			f.write('\n#')
 
 			for e in self.edges:
 				f.write('\n')
@@ -95,6 +140,40 @@ class Graph:
 			f.close()
 		return state_vector
 
+	def from_file_(self, filename): 
+		state_vector = ''
+		with open(filename, mode='r') as f: 
+			state_vector = f.readline().strip('\n')
+			while not ('#' in f.readline()): 
+				pass
+			line = f.readline().strip('\n')
+			while not ('#' in line):
+				node_name = line
+				node = Node.Node(node_name)
+				node.make_initial()
+				self.nodes.append(node)
+				line = f.readline().strip('\n')
+			line = f.readline().strip('\n')
+			while not ('#' in line):
+				node_name = line
+				node = Node.Node(node_name)
+				self.nodes.append(node)
+				line = f.readline().strip('\n')
+			line = f.readline().strip('\n')
+			while not ('#' in line):
+				node_name = line
+				node = Node.Node(node_name)
+				node.make_terminal()
+				self.nodes.append(node)
+				line = f.readline().strip('\n')
+			for l in f:
+				l = l.strip('\n')
+				first_node = Node.Node(l[:l.find(' ')]) 
+				second_node = Node.Node(l[l.find(' ')+1:])
+				edge = Edge.Edge(first_node, second_node)
+				self.edges.append(edge)
+			f.close()
+		return state_vector
 
 
 

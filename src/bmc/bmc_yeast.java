@@ -70,7 +70,7 @@ public class bmc_yeast
 			int exit_value;
 			File graph_file;
 			String path_length_string, script_location, model_location, command;
-			String graph_location = "./graph.g";
+			String graph_location = "./bmc_z3/graph.g";
 			Graph graph;
 
 

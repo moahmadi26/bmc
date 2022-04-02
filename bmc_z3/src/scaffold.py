@@ -192,49 +192,110 @@ def scaffold(path, bound, model):
 
 
 def exclude_graph(graph, bound): 
-	assignments = []
-	nodes = []
-	for node in graph.nodes: 
-		node_name = node.name
-		s1 = node_name[1:node_name.find(',')]
-		node_name = node_name[node_name.find(',')+1:]
-		s2 = node_name[:node_name.find(',')]
-		node_name = node_name[node_name.find(',')+1:]
-		s3 = node_name[:node_name.find(',')]
-		node_name = node_name[node_name.find(',')+1:]
-		s4 = node_name[:node_name.find(',')]
-		node_name = node_name[node_name.find(',')+1:]
-		s5 = node_name[:node_name.find(',')]
-		node_name = node_name[node_name.find(',')+1:]
-		s6 = node_name[:node_name.find(',')]
-		node_name = node_name[node_name.find(',')+1:node_name.find(']')]
-		nodes.append([s1,s2,s3,s4,s5,s6])
-	
-	
-	exclude_states = []
-	for b in range (0, bound+1): 
-		s1 = Int('s1.{0}'.format(b))
-		s2 = Int('s2.{0}'.format(b))
-		s3 = Int('s3.{0}'.format(b))
-		s4 = Int('s4.{0}'.format(b))
-		s5 = Int('s5.{0}'.format(b))
-		s6 = Int('s6.{0}'.format(b))
-		graph_states = []
-		for e in nodes: 
-			state = And(s1==e[0], s2==e[1], s3==e[2], s4==e[3], s5==e[4], s6==e[5])
-			graph_states.append(state)
-		exclude_states.append(graph_states)
+	if bound == 1:
+		assignments = []
+		for edge in graph.edges:
+			nodes = edge.get_nodes()
+			node1 = nodes[0]
+			node2 = nodes[1]
+			
+			node_name_1 = node1.name
+			s1_1 = node_name_1[1:node_name_1.find(',')]
+			node_name_1 = node_name_1[node_name_1.find(',')+1:]
+			s2_1 = node_name_1[:node_name_1.find(',')]
+			node_name_1 = node_name_1[node_name_1.find(',')+1:]
+			s3_1 = node_name_1[:node_name_1.find(',')]
+			node_name_1 = node_name_1[node_name_1.find(',')+1:]
+			s4_1 = node_name_1[:node_name_1.find(',')]
+			node_name_1 = node_name_1[node_name_1.find(',')+1:]
+			s5_1 = node_name_1[:node_name_1.find(',')]
+			node_name_1 = node_name_1[node_name_1.find(',')+1:]
+			s6_1 = node_name_1[:node_name_1.find(',')]
+			node_name_1 = node_name_1[node_name_1.find(',')+1:node_name_1.find(']')]
 
-	for es in exclude_states: 
-		es = Not(Or(es))
-		assignments.append(es)
-	assignments = Or(assignments)
-	return assignments
+			node_name_2 = node2.name
+			s1_2 = node_name_2[1:node_name_2.find(',')]
+			node_name_2 = node_name_2[node_name_2.find(',')+1:]
+			s2_2 = node_name_2[:node_name_2.find(',')]
+			node_name_2 = node_name_2[node_name_2.find(',')+1:]
+			s3_2 = node_name_2[:node_name_2.find(',')]
+			node_name_2 = node_name_2[node_name_2.find(',')+1:]
+			s4_2 = node_name_2[:node_name_2.find(',')]
+			node_name_2 = node_name_2[node_name_2.find(',')+1:]
+			s5_2 = node_name_2[:node_name_2.find(',')]
+			node_name_2 = node_name_2[node_name_2.find(',')+1:]
+			s6_2 = node_name_2[:node_name_2.find(',')]
+			node_name_2 = node_name_2[node_name_2.find(',')+1:node_name_2.find(']')]
+
+			s1_0_ = Int('s1.{0}'.format(0))
+			s2_0_ = Int('s2.{0}'.format(0))
+			s3_0_ = Int('s3.{0}'.format(0))
+			s4_0_ = Int('s4.{0}'.format(0))
+			s5_0_ = Int('s5.{0}'.format(0))
+			s6_0_ = Int('s6.{0}'.format(0))
+
+			s1_1_ = Int('s1.{0}'.format(1))
+			s2_1_ = Int('s2.{0}'.format(1))
+			s3_1_ = Int('s3.{0}'.format(1))
+			s4_1_ = Int('s4.{0}'.format(1))
+			s5_1_ = Int('s5.{0}'.format(1))
+			s6_1_ = Int('s6.{0}'.format(1))
+
+			state = And(s1_0_==s1_1, s2_0_==s2_1, s3_0_==s3_1)
+			state = And(state, s4_0_==s4_1, s5_0_==s5_1, s6_0_==s6_1)
+			state = And(state, s1_1_==s1_2, s2_1_==s2_2, s3_1_==s3_2)
+			state = And(state, s4_1_==s4_2, s5_1_==s5_2, s6_1_==s6_2)
+			assignments.append(state)
+		return Not(Or(assignments))
+
+	else:
+		assignments = []
+		nodes = []
+		for node in graph.nodes: 
+			if node.is_terminal or node.is_initial: 
+				continue
+			node_name = node.name
+			s1 = node_name[1:node_name.find(',')]
+			node_name = node_name[node_name.find(',')+1:]
+			s2 = node_name[:node_name.find(',')]
+			node_name = node_name[node_name.find(',')+1:]
+			s3 = node_name[:node_name.find(',')]
+			node_name = node_name[node_name.find(',')+1:]
+			s4 = node_name[:node_name.find(',')]
+			node_name = node_name[node_name.find(',')+1:]
+			s5 = node_name[:node_name.find(',')]
+			node_name = node_name[node_name.find(',')+1:]
+			s6 = node_name[:node_name.find(',')]
+			node_name = node_name[node_name.find(',')+1:node_name.find(']')]
+			nodes.append([s1,s2,s3,s4,s5,s6])
+		
+		
+		exclude_states = []
+		for b in range (1, bound): 
+			s1 = Int('s1.{0}'.format(b))
+			s2 = Int('s2.{0}'.format(b))
+			s3 = Int('s3.{0}'.format(b))
+			s4 = Int('s4.{0}'.format(b))
+			s5 = Int('s5.{0}'.format(b))
+			s6 = Int('s6.{0}'.format(b))
+			graph_states = []
+			for e in nodes: 
+				state = And(s1==e[0], s2==e[1], s3==e[2], s4==e[3], s5==e[4], s6==e[5])
+				graph_states.append(state)
+			exclude_states.append(graph_states)
+
+		for es in exclude_states: 
+			es = Not(Or(es))
+			assignments.append(es)
+		assignments = And(assignments)
+		return assignments
 
 
 def states_from_graph(graph, state_bound):
 	nodes = []
 	for node in graph.nodes: 
+		if state_bound==0 and node.is_terminal: 
+			continue
 		node_name = node.name
 		s1 = node_name[1:node_name.find(',')]
 		node_name = node_name[node_name.find(',')+1:]

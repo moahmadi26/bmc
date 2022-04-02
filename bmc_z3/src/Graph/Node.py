@@ -4,9 +4,13 @@ class Node:
 		self.name = name
 		self.is_terminal = False
 		self.marked = False
+		self.is_initial = False
 
 	def make_terminal(self): 
 		self.is_terminal = True
+
+	def make_initial(self): 
+		self.is_initial = True
 
 	def equals(self, node): 
 		if self.name == node.name: 

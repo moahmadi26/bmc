@@ -59,6 +59,7 @@ def get_initial_state():
 
     state = And(s1 == 1, s4 == 1, s2 == 50, s5 == 50, s3 == 0, s6 == 0)
     node = Node.Node('[1,50,0,1,50,0]')
+    node.make_initial()
     state_vector = '[s1,s2,s3,s4,s5,s6]'
     return [state, [node], state_vector]
     
