@@ -1,5 +1,13 @@
 {
 	"model" : "yeast_polarization",
-	"starting_bound" : 10,
-	"property" : "P<0.01 [true U<=100 s5=40]"
+	"starting_bound" : 100,
+	"prism_binary" : "/home/ubu/projects/probmc/prism-4.7-src/prism/bin/prism",
+	"csl_property" : "P=? [true U<=20 Gbg=50]",
+	"property_variable" : "Gbg",
+	"property_value" : "50",
+	"probability_bound" : "0.00001",
+	"model_check_step" : "100",
+	"construct_path_bound" : "3",
+	"base" : "0",
+	"step" : "1"
 }

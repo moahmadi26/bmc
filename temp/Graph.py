@@ -1,18 +1,16 @@
 #from z3 import Solver
 import numpy as np
 import math
+import subprocess
 
-
-
-#var_dict a dictionary assining values to the model's variables
-#out_reactions is a set containing all the indices of reactions
-#going out of the node in the graph
 class node:
 	def __init__(self, var_dict): 
-		self.var_dict = var_dict
+		#a dictionary assining values to all of model's variables
+		self.var_dict = var_dict	
 		self.is_initial = False
-		self.out_reactions = set()
+		#index is used for keeping .sta and .tra files synched
 		self.index = -1
+		#a list containing all the edges going out of the node
 		self.out_edges = []
 
 	def make_initial(self): 
@@ -31,11 +29,11 @@ class node:
 
 
 #an edge has two nodes n1:source node, n2: destination node
-#an edge has a reaction index
 class edge: 
 	def __init__(self, n1, n2, reaction): 
 		self.n1 = n1
 		self.n2 = n2
+		#a reaction index in {1, 2, 3, ...}
 		self.reaction = reaction
 
 	def equals(self, edge_): 
@@ -59,10 +57,14 @@ class graph:
 		for j in self.node_list:
 			if node_.equals(j): 
 				flag = False
+				return_node = j
 		if flag:
-			self.node_list.append(node_) 
+			self.node_list.append(node_)
+			return_node = node_
+		return return_node
 
-	#if the source node of an edge is already present
+	#if the edge_ is not already in the graph, adds the edge to the graph
+	#updates the source node's list of outgoing edges
 	def add_edge(self, edge_): 
 		flag = True
 		for j in self.edge_list: 
@@ -75,7 +77,6 @@ class graph:
 				if n.equals(edge_.get_node_list()[0]): 
 					contains_node1=True
 					edge_.n1 = n
-					node1 = n
 				if n.equals(edge_.get_node_list()[1]):
 					contains_node2=True
 					edge_.n2 = n
@@ -90,10 +91,6 @@ class graph:
 			node1 = edge_.get_node_list()[0]
 			node1.add_out_edge(edge_)
 
-	def is_empty(self): 
-		if len(self.node_list) == 0: 
-			return True
-		return False
 
 	def add_path(self, path): 
 		#find the last index (length) of the path
@@ -103,9 +100,12 @@ class graph:
 			if index_temp > index: 
 				index = index_temp
 
+		#a path is an ordered list of states(var assignments)
 		node_ordered_list = [None] * (index+1)
 
 		for i in path.decls():
+			if 'rate' in i.name(): 
+				continue
 			index_temp = int(i.name()[i.name().rfind('.')+1:])
 			if node_ordered_list[index_temp] == None: 
 				node_ordered_list[index_temp] = []
@@ -131,6 +131,7 @@ class graph:
 			self.add_edge(edge_)
 
 
+	#save the graph in PRISM readable format
 	def to_file(self, file_name_prefix, model): 
 		species_vector = model.species_vector()
 		initial_state_index = -1
@@ -140,6 +141,8 @@ class graph:
 		states_file_name = file_name_prefix + '.sta'
 		with open(states_file_name, mode='w', encoding='ascii') as f:
 			f.truncate()
+			
+			#first line of the .sta file shows the variable formats
 			state_vector_line = '('
 			for e in species_vector: 
 				state_vector_line = state_vector_line + e + ','
@@ -151,7 +154,9 @@ class graph:
 
 			for i, n in enumerate(self.node_list): 
 				if n.is_initial:
+					#keep the initial state index for .lab file
 					initial_state_index = i
+				#set an index for each node for synch between .sta and .tra
 				n.set_index(i)
 				line = str(i) + ':('
 				for s in species_vector: 
@@ -161,6 +166,8 @@ class graph:
 				line = ''.join(line_list)
 				f.write(line)
 				f.write('\n')
+			#sink state has the largest index. It also has the value
+			# (-1, -1, -1, ...) assigned to its variables
 			sink_line = str(self.node_list[-1].index + 1) + ':('
 			for e in species_vector:
 				sink_line = sink_line + '-1,'
@@ -175,7 +182,7 @@ class graph:
 		with open(labels_file_name, mode='w', encoding='ascii') as f:
 			f.truncate()
 			sink_state_index = self.node_list[-1].index + 1
-			lab_line = '0="init" 1="deadlock" 2="sink"'
+			lab_line = '0="init" 2="sink"'
 			f.write(lab_line)
 			f.write('\n')
 			f.write(str(initial_state_index) + ': 0')
@@ -184,30 +191,38 @@ class graph:
 			f.close()
 
 		#the transitions file (.tra)
+		
 		rate = float()
+		#list of all the transitions already in the graph + added sink transitions
+		#each trans_list entry is a vector of size three: [src, dest, rate]
 		trans_list  = [[]] * len(self.node_list)
 			
 		for i, n in enumerate(self.node_list):
-			#get the state-vector for node n
+			#get the state-vector for node n (to compute rate based on that)
 			var_values = [None] * len(species_vector)
 			for j, s in enumerate(species_vector):
 				var_values[j] = n.var_dict[s]
 
+			#sum of the rate of all the outgoing transitions out of the node in the current graph
 			current_rate = 0
+			#sum of the rate of all the outgoing transitions out of the state in the original model
 			total_rate = 0
 
 			trans_list_temp = []
 			for e in n.out_edges:
 				comb = 1
+				
+				# 2R1 + R2 --K--> R3. the rate would be: #(R1) * #(R1) * #(R2) * K
 				for it, r in enumerate(model.reactions_vector()[e.reaction][0]):
 					for c in range(r): 
 						comb = comb * var_values[it]
-
 				rate = model.reaction_rates()[e.reaction-1]
 				rate = rate * comb
+				
 				trans_list_temp.append([n.index, e.get_node_list()[1].index, rate])
 				current_rate = current_rate + rate
 
+			#all the reactions could possibly go out of the state(except for zero reactants (handled by comb*0))
 			for j, r in enumerate(model.reactions_vector().values()):
 				comb = 1
 				rate = model.reaction_rates()[j]
@@ -230,6 +245,7 @@ class graph:
 				for e in n: 
 					num_transitions = num_transitions + 1
 			
+			#number of nodes is the size of node_list + 1(sink state)
 			first_line = str(len(self.node_list)+1) + ' ' + str(num_transitions)
 			f.write(first_line)
 			f.write('\n')
@@ -240,3 +256,22 @@ class graph:
 					f.write('\n')
 			f.close()
 
+
+	#calculate the probability of the graph with respect to
+	#csl_prop
+	def model_check(self, model, model_name, prism_bin, csl_prop):
+		self.to_file('results/' + model_name, model)
+		prism_model_files = 'results/' + model_name + '.all'
+		stdout_result = subprocess.run([prism_bin, '-importmodel', prism_model_files, '-pf', csl_prop], stdout=subprocess.PIPE)
+		stdout_result = stdout_result.stdout.decode('utf-8')
+		stdout_result = stdout_result.splitlines()
+
+		result = ''
+		for r in stdout_result:
+			if 'Result' in r: 
+				result = r
+		result = result[result.rfind(':')+2:]
+		if ' ' in result: 
+			result = result[:result.find(' ')]
+		result = float(result)
+		return result

@@ -71,7 +71,7 @@ public class bmc_6
 			File graph_file;
 			String path_length_string, script_location, model_location, command;
 			String graph_location = "./bmc_z3/src/graph.g";
-			 	   //graph_location = "./graph.g";
+			 	   graph_location = "./graph.g";
 
 			Graph graph;
 

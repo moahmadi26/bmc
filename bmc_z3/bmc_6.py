@@ -170,7 +170,7 @@ if (sys.argv[3]=='1') and (bound!=0):
 	state_vector = graph.from_file(graph_file)
 	solver.from_file(constraints_file)
 	solver.add(model.get_encoding(bound))
-	solver.add(loop_constraints(bound))
+	#solver.add(loop_constraints(bound))
 	count = 0
 	flag = False
 	time_acc = 0
@@ -184,7 +184,7 @@ if (sys.argv[3]=='1') and (bound!=0):
 		solver.add(exclude_path(path))
 		count = count+1
 		flag = True
-	print('time for adding paths: %d' % (time_acc))
+	#print('time for adding paths: %d' % (time_acc))
 	print('# of paths: ' + str(count))
 	# if flag or bound>25:
 	# 	add_loops_to_graph(model, graph, 3)
