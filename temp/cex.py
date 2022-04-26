@@ -64,7 +64,7 @@ while (prob<prob_bound):
 	print('bound: ' + str(curr_bound))
 	solver = Solver()
 	#add the initial state constraint
-	solver.add(get_inital_state(model))
+	solver.add(get_initial_state(model))
 	#add the constraints up to and including the starting bound
 	for i in range(1, curr_bound+1):
 		solver.add(get_encoding_2(model, i))
@@ -119,5 +119,4 @@ print('total # of paths: ' + str(count))
 print('# of seed paths: ' + str(seed_count))
 prob = graph.model_check(model, model_name, prism, csl_prop)
 print('probability of the counterexample subgraph= ' + str(prob))
-
 

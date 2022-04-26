@@ -332,7 +332,7 @@ while prob <= prob_bound:
 	#add_paths(graph, property_val, step, base, property_var, max_search_bound)
 	count = 0
 	# #if prob> 1e-20:
-	#count, prob, terminate = construct_path_2(graph, model, model_name, prism, csl_prop, max_search_bound, count, prob, prob_bound, property_var, property_val, mc_step)
+	count, prob, terminate = construct_path_2(graph, model, model_name, prism, csl_prop, max_search_bound, count, prob, prob_bound, property_var, property_val, mc_step)
 	#max_search_bound = max_search_bound + 1
 	# prob = graph.model_check(model, model_name, prism, csl_prop)
 	# print(prob)
